@@ -174,17 +174,17 @@ Job.prototype = {
 	}
 	,updateGraph: function() {
 		if(this.queuedRecords.length > 15) this.queuedRecords.shift();
-		moments.push(this.itemsQueued);
+		this.queuedRecords.push(this.queueRemaining);
 		
 		var canvas = window.document.getElementById("graph-canvas-" + this.ident);
 		var space = canvas.width / 15;
-		upperLimit = Math.max(upperLimit,this.queuedRecords.length - 1]);
+		this.graphUpper = Math.max(this.graphUpper,this.queueRemaining);
 		var ctx = canvas.getContext("2d");
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
 		ctx.beginPath();
 		for(var i = this.queuedRecords.length - 1; i >= 0; i--)
 		{
-			ctx.lineTo(canvas.width - (space * (this.queuedRecords.length - 1 - i)), canvas.height - (canvas.height * (this.queuedRecords[i] / upperLimit)));
+			ctx.lineTo(canvas.width - (space * (this.queuedRecords.length - 1 - i)), canvas.height - (canvas.height * (this.queuedRecords[i] / this.graphUpper)));
 		}
 		ctx.stroke();
 	}
