@@ -22,6 +22,8 @@ var Job = function(ident) {
 	}
 	this.downloadCountBucket = _g;
 	this.logLines = [];
+	this.queuedRecords = [];
+	this.graphUpper = 15;
 	this.ident = ident;
 };
 Job.__name__ = true;
@@ -169,6 +171,22 @@ Job.prototype = {
 		}
 		logElement.setAttribute("data-autoscroll-dirty","true");
 		this.pendingLogLines = 0;
+	}
+	,updateGraph: function() {
+		if(this.queuedRecords.length > 15) this.queuedRecords.shift();
+		moments.push(this.itemsQueued);
+		
+		var canvas = window.document.getElementById("graph-canvas-" + this.ident);
+		var space = canvas.width / 15;
+		upperLimit = Math.max(upperLimit,this.queuedRecords.length - 1]);
+		var ctx = canvas.getContext("2d");
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		ctx.beginPath();
+		for(var i = this.queuedRecords.length - 1; i >= 0; i--)
+		{
+			ctx.lineTo(canvas.width - (space * (this.queuedRecords.length - 1 - i)), canvas.height - (canvas.height * (this.queuedRecords[i] / upperLimit)));
+		}
+		ctx.stroke();
 	}
 	,attachAntiScroll: function() {
 		var logWindow = window.document.getElementById("job-log-" + this.ident);
@@ -412,6 +430,7 @@ Dashboard.prototype = {
 			++_g;
 			if(!job.logPaused) {
 				job.drawPendingLogLines();
+				job.updateGraph();
 			}
 		}
 		this.scrollLogsToBottom();
