@@ -24,6 +24,7 @@ var Job = function(ident) {
 	this.logLines = [];
 	this.queuedRecords = [];
 	this.graphUpper = 15;
+	this.lastUpdate = Date.now();
 	this.ident = ident;
 };
 Job.__name__ = true;
@@ -173,20 +174,29 @@ Job.prototype = {
 		this.pendingLogLines = 0;
 	}
 	,updateGraph: function() {
-		if(this.queuedRecords.length > 15) this.queuedRecords.shift();
-		this.queuedRecords.push(this.queueRemaining);
+		this.lastUpdate = Date.now();
+		var thirtyMinsAgo = this.lastUpdate - 1.8e+6;
+		while(this.queuedRecords[0] && this.queuedRecords[0].time < thirtyMinsAgo) this.queuedRecords.shift();
+		this.queuedRecords.push({remaining:this.queueRemaining, time: this.lastUpdate});
 		
+		this.renderGraph();
+	}
+	,renderGraph: function() {
+		var thirtyMinsAgo = this.lastUpdate - 1.8e+6;
 		var canvas = window.document.getElementById("graph-canvas-" + this.ident);
-		var space = canvas.width / 15;
 		this.graphUpper = Math.max(this.graphUpper,this.queueRemaining);
 		var ctx = canvas.getContext("2d");
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
 		ctx.beginPath();
 		for(var i = this.queuedRecords.length - 1; i >= 0; i--)
 		{
-			ctx.lineTo(canvas.width - (space * (this.queuedRecords.length - 1 - i)), canvas.height - (canvas.height * (this.queuedRecords[i] / this.graphUpper)));
+			ctx.lineTo(timestampToX(this.queuedRecords[i].time), canvas.height - (canvas.height * (this.queuedRecords[i].remaining / this.graphUpper)));
 		}
 		ctx.stroke();
+		
+		function timestampToX(timestamp) {
+			return canvas.width * ((timestamp - thirtyMinsAgo) / 1.8e+6)
+		}
 	}
 	,attachAntiScroll: function() {
 		var logWindow = window.document.getElementById("job-log-" + this.ident);
