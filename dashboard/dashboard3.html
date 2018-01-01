@@ -320,8 +320,8 @@ a.job-log-line-url {
 		</td>
 	</tr>
 	
-	<tr class="job-queue-graph" colspan="5" ng-repeat-end>
-		<td>
+	<tr class="job-queue-graph" ng-repeat-end>
+		<td colspan="{{ :: showNicks ? 7 : 6}}">
 			<canvas id="graph-canvas-{{:: job.ident }}" width="600" height="50"></canvas>
 		</td>
 	</tr>
