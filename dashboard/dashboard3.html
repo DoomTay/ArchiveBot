@@ -210,7 +210,7 @@ a.job-log-line-url {
 		<td><input class="job-ident-clicky" readonly spellcheck="false" type="text" value="{{ ::job.ident }}" size="28" onclick="this.select()"/></td>
 	</tr>
 
-	<tr class="job-detail" ng-if="!hideDetails">
+	<tr class="job-detail" ng-repeat-end ng-if="!hideDetails">
 		<td colspan="{{ :: showNicks ? 7 : 6}}">
 			<div class="job-detail-container container-fluid">
 				<div class="row">
@@ -317,12 +317,6 @@ a.job-log-line-url {
 				</div>
 
 			</div>
-		</td>
-	</tr>
-	
-	<tr class="job-queue-graph" ng-repeat-end>
-		<td colspan="{{ :: showNicks ? 7 : 6}}">
-			<canvas id="graph-canvas-{{:: job.ident }}" width="600" height="50"></canvas>
 		</td>
 	</tr>
 

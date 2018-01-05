@@ -22,9 +22,6 @@ var Job = function(ident) {
 	}
 	this.downloadCountBucket = _g;
 	this.logLines = [];
-	this.queuedRecords = [];
-	this.graphUpper = 15;
-	this.lastUpdate = Date.now();
 	this.ident = ident;
 };
 Job.__name__ = true;
@@ -172,31 +169,6 @@ Job.prototype = {
 		}
 		logElement.setAttribute("data-autoscroll-dirty","true");
 		this.pendingLogLines = 0;
-	}
-	,updateGraph: function() {
-		this.lastUpdate = Date.now();
-		var thirtyMinsAgo = this.lastUpdate - 1.8e+6;
-		while(this.queuedRecords[0] && this.queuedRecords[0].time < thirtyMinsAgo) this.queuedRecords.shift();
-		this.queuedRecords.push({remaining:this.queueRemaining, time: this.lastUpdate});
-		
-		this.renderGraph();
-	}
-	,renderGraph: function() {
-		var thirtyMinsAgo = this.lastUpdate - 1.8e+6;
-		var canvas = window.document.getElementById("graph-canvas-" + this.ident);
-		this.graphUpper = Math.max(this.graphUpper,this.queueRemaining);
-		var ctx = canvas.getContext("2d");
-		ctx.clearRect(0, 0, canvas.width, canvas.height);
-		ctx.beginPath();
-		for(var i = this.queuedRecords.length - 1; i >= 0; i--)
-		{
-			ctx.lineTo(timestampToX(this.queuedRecords[i].time), canvas.height - (canvas.height * (this.queuedRecords[i].remaining / this.graphUpper)));
-		}
-		ctx.stroke();
-		
-		function timestampToX(timestamp) {
-			return canvas.width * ((timestamp - thirtyMinsAgo) / 1.8e+6)
-		}
 	}
 	,attachAntiScroll: function() {
 		var logWindow = window.document.getElementById("job-log-" + this.ident);
@@ -440,7 +412,6 @@ Dashboard.prototype = {
 			++_g;
 			if(!job.logPaused) {
 				job.drawPendingLogLines();
-				job.updateGraph();
 			}
 		}
 		this.scrollLogsToBottom();
